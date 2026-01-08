@@ -1,3 +1,5 @@
+// https://www.twilio.com/docs/sendgrid/api-reference/contacts/search-contacts
+
 import { NextResponse } from "next/server"
 
 export async function GET() {
@@ -5,7 +7,6 @@ export async function GET() {
   client.setApiKey(process.env.SENDGRID_API_KEY)
 
   const list_id = process.env.crossmap_blogs_clife_prayer_contact_list_id
-
   const req_body = {
     url: "/v3/marketing/contacts/search",
     method: "POST",
@@ -16,7 +17,6 @@ export async function GET() {
 
   try {
     const [response, body] = await client.request(req_body)
-
     if (response.statusCode >= 400) {
       return NextResponse.json({ error: body }, { status: response.statusCode })
     }
