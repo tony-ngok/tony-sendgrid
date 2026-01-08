@@ -1,4 +1,5 @@
 // https://www.twilio.com/docs/sendgrid/api-reference/single-sends/create-single-send
+// https://www.twilio.com/docs/sendgrid/api-reference/single-sends/schedule-single-send
 
 import { NextResponse } from "next/server"
 
@@ -7,24 +8,24 @@ export async function POST(request) {
   client.setApiKey(process.env.SENDGRID_API_KEY)
 
   const request_data = await request.json()
-  const send_at = request_data.send_at || "1970-01-01T00:00:00Z"
+  const segment_id = request_data.segment_id || "74247496-2992-4822-abde-f9b246847d10"
   const subject = request_data.subject || "Test"
   const html_content = request_data.html_content || "<div><div><span>test content</span></div></div>"
+  const send_at = request_data.send_at || "1970-01-01T00:00:00Z"
 
-  const list_id = process.env.crossmap_blogs_clife_prayer_contact_list_id
   const cancel_id = process.env.crossmap_blogs_daily_devotional_sendgrid_unsubscribe_group_id
   const sender_id = process.env.crossmap_blogs_clife_prayer_sendgrid_sender_id
 
   const data = {
     name: "test_single_send",
     send_to: {
-      "list_ids": [list_id]
+      segment_ids: [segment_id]
     },
     email_config: {
       subject: subject,
       html_content: html_content,
-      suppression_group_id: Number(cancel_id),
-      sender_id: Number(sender_id)
+      suppression_group_id: parseInt(cancel_id),
+      sender_id: parseInt(sender_id)
     }
   }
 
