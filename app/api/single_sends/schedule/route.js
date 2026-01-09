@@ -31,7 +31,7 @@ export async function POST(request) {
   client.setApiKey(process.env.SENDGRID_API_KEY)
 
   const request_data = await request.json()
-  // const segment_id = request_data.segment_id || "74247496-2992-4822-abde-f9b246847d10"
+  const prefix = request_data.prefix || "test_single_send"
   const list_id = process.env.crossmap_blogs_clife_prayer_contact_list_id
   const subject = request_data.subject || "Test"
   const html_content = request_data.html_content || "<div><div><span>test content</span></div></div>"
@@ -66,7 +66,7 @@ export async function POST(request) {
       const send_at = getSendAt(timezone, send_time, send_date)
 
       const data = {
-        name: `test_single_send-${timezone}-${send_at}`,
+        name: `${prefix}-${timezone}-${send_at}`,
         send_to: {
           segment_ids: [seg.id]
         },
