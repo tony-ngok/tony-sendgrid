@@ -7,10 +7,27 @@ export async function DELETE(request) {
   const client = require("@sendgrid/client")
   client.setApiKey(process.env.SENDGRID_API_KEY)
 
-  const request_data = await request.json()
-  const ids = request_data.ids || []
-  if (!(ids && Array.isArray(ids) && ids?.length)) {
-    return NextResponse.json({ error: "Invalid ids" }, { status: 400 })
+  let request_data
+  try {
+    request_data = await request.json()
+  } catch (error) {
+    return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 })
+  }
+
+  const ids = request_data.ids
+  if (!ids) {
+    return NextResponse.json({ error: "Missing required parameter: ids" }, { status: 400 })
+  }
+  if (!Array.isArray(ids)) {
+    return NextResponse.json({ error: "Invalid parameter: ids must be an array" }, { status: 400 })
+  }
+  if (ids.length === 0) {
+    return NextResponse.json({ error: "Invalid parameter: ids array cannot be empty" }, { status: 400 })
+  }
+  for (let i = 0; i < ids.length; i++) {
+    if (typeof ids[i] !== "string" || ids[i].trim() === "") {
+      return NextResponse.json({ error: `Invalid parameter: ids[${i}] must be a non-empty string` }, { status: 400 })
+    }
   }
 
   try {

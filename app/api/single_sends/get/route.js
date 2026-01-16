@@ -7,7 +7,10 @@ export async function GET(request) {
 
   const id = searchParams.get("id")
   if (!id) {
-    return NextResponse.json({ error: "Invalid single send id" }, { status: 400 })
+    return NextResponse.json({ error: "Missing required parameter: id" }, { status: 400 })
+  }
+  if (typeof id !== "string" || id.trim() === "") {
+    return NextResponse.json({ error: "Invalid parameter: id must be a non-empty string" }, { status: 400 })
   }
 
   const client = require("@sendgrid/client")
