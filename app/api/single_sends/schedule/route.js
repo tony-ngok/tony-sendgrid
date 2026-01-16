@@ -49,17 +49,17 @@ export async function POST(request) {
     return NextResponse.json({ error: "Invalid parameter: subject must be a non-empty string" }, { status: 400 })
   }
 
-  const html_content = request_data.html_content || "<div><div><span>test content</span></div></div>"
+  const html_content = request_data.html_content || "<div><span>test content</span></div>"
   if (typeof html_content !== "string" || html_content.trim() === "") {
     return NextResponse.json({ error: "Invalid parameter: html_content must be a non-empty string" }, { status: 400 })
   }
 
-  const send_date = request_data.send_date || "1970-01-01"
+  const send_date = request_data.send_date || ""
   if (typeof send_date !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(send_date)) {
     return NextResponse.json({ error: "Invalid parameter: send_date must be in YYYY-MM-DD format" }, { status: 400 })
   }
 
-  const send_time = request_data.send_time || "00:00:00"
+  const send_time = request_data.send_time || ""
   if (typeof send_time !== "string" || !/^\d{2}:\d{2}:\d{2}$/.test(send_time)) {
     return NextResponse.json({ error: "Invalid parameter: send_time must be in HH:mm:ss format" }, { status: 400 })
   }
@@ -86,6 +86,7 @@ export async function POST(request) {
       return NextResponse.json({ error: "No segments" }, { status: 404 })
     }
 
+    let ssids = []
     let return_data = []
     for (const seg of segments) {
       const timezone = seg.name.split("-")[2]
@@ -116,6 +117,8 @@ export async function POST(request) {
       }
 
       const ssid = body1.id
+      ssids.push(ssid)
+
       const req_body2 = {
         url: `/v3/marketing/singlesends/${ssid}/schedule`,
         method: "PUT",
@@ -129,7 +132,7 @@ export async function POST(request) {
         return NextResponse.json({ error: body2 }, { status: response2.statusCode })
       }
 
-      return_data.push(body2)
+      return_data.push({ ssid, ...body2 })
     }
 
     return NextResponse.json({ data: return_data }, { status: 200 })

@@ -14,7 +14,7 @@ export async function DELETE(request) {
     return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 })
   }
 
-  const ids = request_data.ids
+  let ids = request_data.ids
   if (!ids) {
     return NextResponse.json({ error: "Missing required parameter: ids" }, { status: 400 })
   }
@@ -30,29 +30,58 @@ export async function DELETE(request) {
     }
   }
 
+  const ids_set = new Set(ids)
+  ids = [...ids_set]
+
   try {
-    let req_body
     if (ids.length === 1) {
-      req_body = {
+      const req_body = {
         url: `/v3/marketing/singlesends/${ids[0]}`,
         method: "DELETE",
       }
-    } else {
-      req_body = {
+      const [response, body] = await client.request(req_body)
+      if (response.statusCode >= 400) {
+        return NextResponse.json({ error: body }, { status: response.statusCode })
+      }
+      return NextResponse.json({
+        data: "success",
+        message: "Successfully deleted 1 single send"
+      }, { status: 200 })
+    }
+
+    const BATCH_SIZE = 50
+    const batches = []
+
+    for (let i = 0; i < ids.length; i += BATCH_SIZE) {
+      batches.push(ids.slice(i, i + BATCH_SIZE))
+    }
+
+    const results = []
+    for (const batch of batches) {
+      const req_body = {
         url: "/v3/marketing/singlesends",
         method: "DELETE",
         qs: {
-          ids: [...ids].toString()
+          ids: batch.toString()
         }
+      }
+
+      const [response, body] = await client.request(req_body)
+      results.push({ statusCode: response.statusCode, body })
+
+      // If any batch fails, return error immediately
+      if (response.statusCode >= 400) {
+        return NextResponse.json({
+          error: body,
+          message: `Failed to delete batch. Processed ${results.length - 1} of ${batches.length} batches successfully before error.`
+        }, { status: response.statusCode })
       }
     }
 
-    const [response, body] = await client.request(req_body)
-    if (response.statusCode >= 400) {
-      return NextResponse.json({ error: body }, { status: response.statusCode })
-    }
-
-    return NextResponse.json({ data: "success" }, { status: 200 })
+    return NextResponse.json({
+      data: "success",
+      message: `Successfully deleted ${ids.length} single sends in ${batches.length} batch(es)`
+    }, { status: 200 })
   } catch (error) {
     console.error("SendGrid API Error:", error)
     const status = error.code || 500
