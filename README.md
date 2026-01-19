@@ -2,13 +2,15 @@
 
 这是一个 Sendgrid（Email 订阅与传送系统）的练习专案。
 
-## 如何执行
-1. 确保已经安装 Node.js 22+
-2. 新增一个 `.env`（环境变数）档案，按照 `.env.example` 的格式填写所需环境变数
-3. 执行 `npm install`，完成后执行 `npm run build`
-4. 执行 `npm run dev`启动
+本专案为纯 API，无前端界面，需配合 [Postman](https://www.postman.com/downloads/) 等 API 请求发送平台使用。
 
-## 请求示例（可在 Postman 中发送）
+## 如何在本地执行
+1. 确保已经安装 Node.js 22+
+2. 新增一个 `.env`（环境变量），按照 `.env.example` 的格式填写所需环境变量
+3. 执行 `npm install`，完成后执行 `npm run build`
+4. 执行 `npm run dev` 启动
+
+## 请求示例
 - 列举所有发送段（segment）：`GET localhost:3002/api/segments`
 - 排程发送：`POST localhost:3002/api/single_sends/schedule`
     - 请求承载（粗体为必填）：
@@ -27,7 +29,8 @@
             "send_time": "14:50:00"
         }
         ```
-    - 若请求成功，则会于每个发送段排程发送，会返回一个阵列，包含每个发送段的单次发送 `ssid` 及排程日期时间
+    - 若请求成功，则会于每个发送段排程发送，会返回一个阵列，包含每个发送段的单次发送 `ssid` 及排程日期时间；请记住这些 `ssid` 以便日后查询或删除
 - 删除单次发送：`DELETE localhost:3002/api/single_sends/delete`
     - 请求承载（必填）：
         - **`ids`：包含要删除单次发送 `ssid` 的阵列（每个 `ssid` 仅能对应一个发送段）**
+- 若在本地执行，则 API 请求 URL 根部改为 `localhost:3002`
