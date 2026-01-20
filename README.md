@@ -11,8 +11,8 @@
 4. 执行 `npm run dev` 启动
 
 ## 请求示例
-- 列举所有发送段（segment）：`GET localhost:3002/api/segments`
-- 排程发送：`POST localhost:3002/api/single_sends/schedule`
+- 列举所有发送段（segment）：`GET https://tony-sendgrid.vercel.app/api/segments`
+- 排程发送：`POST https://tony-sendgrid.vercel.app/api/single_sends/schedule`
     - 请求承载（粗体为必填）：
         - `prefix`：单次发送名称前缀
         - `subject`：电子邮件题目
@@ -30,7 +30,7 @@
         }
         ```
     - 若请求成功，则会于每个发送段排程发送，会返回一个阵列，包含每个发送段的单次发送 `ssid` 及排程日期时间；请记住这些 `ssid` 以便日后查询或删除
-- 删除单次发送：`DELETE localhost:3002/api/single_sends/delete`
+- 删除单次发送：`DELETE https://tony-sendgrid.vercel.app/api/single_sends/delete`
     - 请求承载（必填）：
         - **`ids`：包含要删除单次发送 `ssid` 的阵列（每个 `ssid` 仅能对应一个发送段）**
 - 若在本地执行，则 API 请求 URL 根部改为 `localhost:3002`
