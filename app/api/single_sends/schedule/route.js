@@ -140,7 +140,10 @@ export async function POST(request) {
     const response = await fetch(process.env.PRODUCER_LAMBDA_URL,
       {
         method: "POST",
-        body: JSON.stringify({ prefix, list_id, subject, html_content, send_date, send_time, cancel_id, sender_id })
+        body: JSON.stringify({
+          queue_url: process.env.SQS_QUEUE_URL,
+          prefix, list_id, subject, html_content, send_date, send_time, cancel_id, sender_id
+        })
       }
     )
     return NextResponse.json(await response.json(), { status: response.status })
