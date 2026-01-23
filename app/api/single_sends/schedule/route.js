@@ -5,30 +5,30 @@ import { NextResponse } from "next/server"
 import moment from "moment"
 import "moment-timezone"
 
-function getSendAt(timezone, newsletterSendTime, newsletterSendDate) {
-  let localNow = moment.tz(timezone)
-  let localDate = localNow.format("YYYY-MM-DD")
-  if (localDate < newsletterSendDate) {
-    localDate = newsletterSendDate
-  }
-  let localTime = localNow.format("HH:mm:ss")
-  let localDatetime = localDate + " " + localTime
-  let localSendAt = localDate + " " + newsletterSendTime
+// function getSendAt(timezone, newsletterSendTime, newsletterSendDate) {
+//   let localNow = moment.tz(timezone)
+//   let localDate = localNow.format("YYYY-MM-DD")
+//   if (localDate < newsletterSendDate) {
+//     localDate = newsletterSendDate
+//   }
+//   let localTime = localNow.format("HH:mm:ss")
+//   let localDatetime = localDate + " " + localTime
+//   let localSendAt = localDate + " " + newsletterSendTime
 
-  if (localSendAt < localDatetime) {
-    localNow.add(1, "days")
-    localDate = localNow.format("YYYY-MM-DD")
-    localSendAt = localDate + " " + newsletterSendTime
-  }
-  console.log(localSendAt, timezone)
+//   if (localSendAt < localDatetime) {
+//     localNow.add(1, "days")
+//     localDate = localNow.format("YYYY-MM-DD")
+//     localSendAt = localDate + " " + newsletterSendTime
+//   }
+//   console.log(localSendAt, timezone)
 
-  let utcSendAt = moment.tz(localSendAt, timezone)
-  return utcSendAt.toISOString()
-}
+//   let utcSendAt = moment.tz(localSendAt, timezone)
+//   return utcSendAt.toISOString()
+// }
 
 export async function POST(request) {
-  const client = require("@sendgrid/client")
-  client.setApiKey(process.env.SENDGRID_API_KEY)
+  // const client = require("@sendgrid/client")
+  // client.setApiKey(process.env.SENDGRID_API_KEY)
 
   let request_data
   try {
@@ -68,74 +68,82 @@ export async function POST(request) {
   const sender_id = process.env.crossmap_blogs_clife_prayer_sendgrid_sender_id
 
   try {
-    const req_body = {
-      url: "/v3/marketing/segments",
-      method: "GET",
-      qs: {
-        parent_list_ids: list_id
-      }
-    }
+    // const req_body = {
+    //   url: "/v3/marketing/segments",
+    //   method: "GET",
+    //   qs: {
+    //     parent_list_ids: list_id
+    //   }
+    // }
 
-    const [response, body] = await client.request(req_body)
-    if (response.statusCode >= 400) {
-      return NextResponse.json({ error: body }, { status: response.statusCode })
-    }
+    // const [response, body] = await client.request(req_body)
+    // if (response.statusCode >= 400) {
+    //   return NextResponse.json({ error: body }, { status: response.statusCode })
+    // }
 
-    const segments = body.results.filter(item => item.name.startsWith("DEV-"))
-    if (!segments?.length) {
-      return NextResponse.json({ error: "No segments" }, { status: 404 })
-    }
+    // const segments = body.results.filter(item => item.name.startsWith("DEV-"))
+    // if (!segments?.length) {
+    //   return NextResponse.json({ error: "No segments" }, { status: 404 })
+    // }
 
-    let ssids = []
-    let return_data = []
-    for (const seg of segments) {
-      const timezone = seg.name.split("-")[2]
-      const send_at = getSendAt(timezone, send_time, send_date)
+    // let ssids = []
+    // let return_data = []
+    // for (const seg of segments) {
+    //   const timezone = seg.name.split("-")[2]
+    //   const send_at = getSendAt(timezone, send_time, send_date)
 
-      const data = {
-        name: `${prefix}-${timezone}-${send_at}`,
-        send_to: {
-          segment_ids: [seg.id]
-        },
-        email_config: {
-          subject: subject,
-          html_content: html_content,
-          suppression_group_id: parseInt(cancel_id),
-          sender_id: parseInt(sender_id)
-        }
-      }
+    //   const data = {
+    //     name: `${prefix}-${timezone}-${send_at}`,
+    //     send_to: {
+    //       segment_ids: [seg.id]
+    //     },
+    //     email_config: {
+    //       subject: subject,
+    //       html_content: html_content,
+    //       suppression_group_id: parseInt(cancel_id),
+    //       sender_id: parseInt(sender_id)
+    //     }
+    //   }
 
-      const req_body1 = {
-        url: "/v3/marketing/singlesends",
+    //   const req_body1 = {
+    //     url: "/v3/marketing/singlesends",
+    //     method: "POST",
+    //     body: data
+    //   }
+
+    //   const [response1, body1] = await client.request(req_body1)
+    //   if (response1.statusCode >= 400) {
+    //     return NextResponse.json({ error: body1 }, { status: response1.statusCode })
+    //   }
+
+    //   const ssid = body1.id
+    //   ssids.push(ssid)
+
+    //   const req_body2 = {
+    //     url: `/v3/marketing/singlesends/${ssid}/schedule`,
+    //     method: "PUT",
+    //     body: {
+    //       send_at: send_at
+    //     }
+    //   }
+
+    //   const [response2, body2] = await client.request(req_body2)
+    //   if (response2.statusCode >= 400) {
+    //     return NextResponse.json({ error: body2 }, { status: response2.statusCode })
+    //   }
+
+    //   return_data.push({ ssid, ...body2 })
+    // }
+
+    // return NextResponse.json({ data: return_data }, { status: 200 })
+
+    const response = await fetch(process.env.PRODUCER_LAMBDA_URL,
+      {
         method: "POST",
-        body: data
+        body: JSON.stringify({ prefix, list_id, subject, html_content, send_date, send_time, cancel_id, sender_id })
       }
-
-      const [response1, body1] = await client.request(req_body1)
-      if (response1.statusCode >= 400) {
-        return NextResponse.json({ error: body1 }, { status: response1.statusCode })
-      }
-
-      const ssid = body1.id
-      ssids.push(ssid)
-
-      const req_body2 = {
-        url: `/v3/marketing/singlesends/${ssid}/schedule`,
-        method: "PUT",
-        body: {
-          send_at: send_at
-        }
-      }
-
-      const [response2, body2] = await client.request(req_body2)
-      if (response2.statusCode >= 400) {
-        return NextResponse.json({ error: body2 }, { status: response2.statusCode })
-      }
-
-      return_data.push({ ssid, ...body2 })
-    }
-
-    return NextResponse.json({ data: return_data }, { status: 200 })
+    )
+    return NextResponse.json(await response.json(), { status: response.status })
   } catch (error) {
     console.error("SendGrid API Error:", error)
     const status = error.code || 500
