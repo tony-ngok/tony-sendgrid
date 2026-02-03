@@ -50,7 +50,7 @@ export async function POST(request) {
         body: JSON.stringify({
           sendgrid_api: process.env.SENDGRID_API_KEY,
           queue_url: process.env.SQS_QUEUE_URL,
-          prefix, list_id, subject, html_content, send_date, send_time, cancel_id, sender_id
+          prefix, list_id, subject, html_content, send_date, send_time, cancel_id, sender_id, category
         })
       }
     )
