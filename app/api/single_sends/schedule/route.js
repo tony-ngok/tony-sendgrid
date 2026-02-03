@@ -35,6 +35,11 @@ export async function POST(request) {
     return NextResponse.json({ error: "Invalid parameter: send_time must be in HH:mm:ss format" }, { status: 400 })
   }
 
+  const category = request_data.category || ""
+  if (typeof category !== "string") {
+    return NextResponse.json({ error: "Invalid parameter: category must be a string" }, { status: 400 })
+  }
+
   const cancel_id = process.env.crossmap_blogs_daily_devotional_sendgrid_unsubscribe_group_id
   const sender_id = process.env.crossmap_blogs_clife_prayer_sendgrid_sender_id
 
