@@ -21,18 +21,25 @@
         - `html_content`：电子邮件 HTML 内容
         - **`send_date`：排程日期（YYYY-MM-DD 格式；以发送段对应本地时区为准）**
         - **`send_time`：排程时间（HH:mm:SS 格式；以发送段对应本地时区为准，若小于当前本地时间，则排程日期加一天）**
+        - `category`：手动设定单次发送的分类，以便今后查询、删除；若未设定，则每次自动生成随机 ID 作为分类
     - 请求承载示例：
         ```json
         {
             "prefix": "test_single_send",
             "subject": "Test",
             "html_content": "<div><span>test content</span></div>",
-            "send_date": "2026-01-16",
-            "send_time": "14:50:00"
+            "send_date": "2026-02-05",
+            "send_time": "17:00:00",
+            "category": "TEST-ABCDEFGhij_1234567890"
         }
         ```
-    - 若请求成功，则会于每个发送段排程发送，会返回一个阵列，包含每个发送段的单次发送 `ssid` 及排程日期时间；请记住这些 `ssid` 以便日后查询或删除
-- 按分类（category）查询单次发送：`GET https://tony-sendgrid.vercel.app/api/get/by_category?category=您的分类id`
+    - 该请求会检索所有发送段，并于每个发送段排程发送；若请求成功，会返回单次发送的分类 ID，以便之后使用
 - 删除单次发送：`DELETE https://tony-sendgrid.vercel.app/api/single_sends/delete`
     - 请求承载（必填）：
         - **`ids`：包含要删除单次发送 `ssid` 的阵列（每个 `ssid` 仅能对应一个发送段）**
+    - 若以此方式删除，请访问您的 sendgrid 用户端，逐个找到刚刚排程的 SSO id
+- 按分类（category）查询单次发送：`GET https://tony-sendgrid.vercel.app/api/single_sends/get/by_category?category=您的分类id`
+- 按分类删除单次发送：`DELETE https://tony-sendgrid.vercel.app/api/single_sends/delete/by_category`
+    - 请求承载（必填）：
+        - **`category`：单次发送分类**
+    - 请求会检索所有包含该分类的单次发送，并将其批量删除
